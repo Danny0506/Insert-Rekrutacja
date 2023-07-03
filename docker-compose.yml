@@ -14,7 +14,7 @@ services:
     expose:
       - '3306'
 
-  adminer_container:
+  adminer:
     image: adminer:latest
     environment:
       ADMINER_DEFAULT_SERVER: db
