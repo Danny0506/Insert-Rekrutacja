@@ -1,13 +1,12 @@
 package com.insert.recruitment;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@SpringBootTest
-class RecruitmentApplicationTests {
+@ExtendWith(SpringExtension.class)
+class RecruitmentApplicationTests extends BaseTestIT {
 
-	@Test
-	void contextLoads() {
-	}
-
+  @Test
+  void contextLoads() {}
 }
