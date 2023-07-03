@@ -15,12 +15,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-@Table(name = "Order")
+@Table(name = "order_table")
 class OrderEntity {
 
   @Id
-  @SequenceGenerator(sequenceName = "order_sequence", name = "order_generator", allocationSize = 1)
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_generator")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @Enumerated(EnumType.STRING)

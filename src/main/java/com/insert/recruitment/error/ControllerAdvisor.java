@@ -1,10 +1,13 @@
 package com.insert.recruitment.error;
 
-import static com.insert.recruitment.error.ReasonCode.ORDER_NOT_EXIST;
+import static com.insert.recruitment.error.ReasonCode.*;
 import static java.lang.String.format;
 import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 
+import com.insert.recruitment.exception.CannotChangeOrderStatusException;
 import com.insert.recruitment.exception.OrderNotExistException;
+import jakarta.validation.ConstraintViolationException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
@@ -19,17 +22,60 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ControllerAdvisor {
 
   private static final String SOURCE = "INSERT_RECRUITMENT_API";
+  private static final String LOG_CONSTANT = "Error was occurred. Message: %s ";
 
   @ExceptionHandler(OrderNotExistException.class)
   public ResponseEntity<ErrorMessage> handleOrderNotExistException(
       OrderNotExistException exception) {
-    log.info(format("Error was occurred. Message: %s ", exception.getMessage()));
-    log.debug(format("Error was occurred. Message: %s ", exception.getMessage()));
+    log.info(format(LOG_CONSTANT, exception.getMessage()));
+    log.debug(format(LOG_CONSTANT, exception.getMessage()));
 
     final ErrorMessage errorMessage =
         new ErrorMessage(
             SOURCE, LocalDateTime.now(), ORDER_NOT_EXIST.name(), exception.getMessage());
 
     return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(CannotChangeOrderStatusException.class)
+  public ResponseEntity<ErrorMessage> handleCannotChangeOrderStatusException(
+      CannotChangeOrderStatusException exception) {
+    log.info(format(LOG_CONSTANT, exception.getMessage()));
+    log.debug(format(LOG_CONSTANT, exception.getMessage()));
+
+    final ErrorMessage errorMessage =
+        new ErrorMessage(
+            SOURCE, LocalDateTime.now(), CANNOT_CHANGE_ORDER_STATUS.name(), exception.getMessage());
+
+    return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<ErrorMessage> handleConstraintViolationException(
+      ConstraintViolationException exception) {
+    log.info(format(LOG_CONSTANT, exception.getMessage()));
+    log.debug(format(LOG_CONSTANT, exception.getMessage()));
+
+    final ErrorMessage errorMessage =
+        new ErrorMessage(
+            SOURCE, LocalDateTime.now(), REQUEST_VALIDATION.name(), exception.getMessage());
+
+    return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+  public ResponseEntity<ErrorMessage> handleSQLIntegrityConstraintViolationException(
+      SQLIntegrityConstraintViolationException exception) {
+    log.info(format(LOG_CONSTANT, exception.getMessage()));
+    log.debug(format(LOG_CONSTANT, exception.getMessage()));
+
+    final ErrorMessage errorMessage =
+        new ErrorMessage(
+            SOURCE,
+            LocalDateTime.now(),
+            SQL_INTEGRITY_CONSTRAINT_VALIDATION.name(),
+            exception.getMessage());
+
+    return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
   }
 }

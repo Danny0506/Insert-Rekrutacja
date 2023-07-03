@@ -1,5 +1,6 @@
 package com.insert.recruitment.order;
 
+import com.insert.recruitment.exception.CannotChangeOrderStatusException;
 import com.insert.recruitment.exception.OrderNotExistException;
 import java.time.LocalDate;
 import java.util.List;
@@ -11,11 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class OrderService {
 
   private final OrderRepository orderRepository;
 
-  @Transactional
   public void createOrder(OrderCommand orderCommand) {
     final OrderEntity order = new OrderEntity();
     order.setDescription(orderCommand.description());
@@ -28,18 +29,35 @@ public class OrderService {
     orderRepository.save(order);
   }
 
-  @Transactional
   public void cancelOrder(Long orderId) {
     final OrderEntity order = resolveOrderEntityFromDatabase(orderId);
     orderRepository.delete(order);
   }
 
-  @Transactional(readOnly = true)
+  public OrderDto acceptOrder(Long orderId) {
+    final OrderEntity order = resolveOrderEntityFromDatabase(orderId);
+    if (OrderStatus.APPROVED.equals(order.getStatus())) {
+      throw new CannotChangeOrderStatusException(order.getStatus().name());
+    } else {
+      order.setStatus(OrderStatus.APPROVED);
+      return toDto(order);
+    }
+  }
+
+  public OrderDto endOrder(Long orderId) {
+    final OrderEntity order = resolveOrderEntityFromDatabase(orderId);
+    if (OrderStatus.COMPLETED.equals(order.getStatus())) {
+      throw new CannotChangeOrderStatusException(order.getStatus().name());
+    } else {
+      order.setStatus(OrderStatus.COMPLETED);
+      return toDto(order);
+    }
+  }
+
   public List<OrderDto> getOrders() {
     return orderRepository.findAll().stream().map(this::toDto).toList();
   }
 
-  @Transactional(readOnly = true)
   public OrderDto getOrder(Long orderId) {
     return this.toDto(resolveOrderEntityFromDatabase(orderId));
   }

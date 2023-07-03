@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/orders")
-public class OrderController {
+class OrderController {
 
   private final OrderService orderService;
 
@@ -17,6 +17,18 @@ public class OrderController {
   public ResponseEntity<Void> createOrder(@RequestBody OrderCommand orderCommand) {
     orderService.createOrder(orderCommand);
     return new ResponseEntity<>(HttpStatus.CREATED);
+  }
+
+  @PatchMapping("/{orderId}/acceptance")
+  public ResponseEntity<OrderDto> acceptOrder(@PathVariable Long orderId) {
+    final OrderDto order = orderService.acceptOrder(orderId);
+    return new ResponseEntity<>(order, HttpStatus.OK);
+  }
+
+  @PatchMapping("/{orderId}/termination")
+  public ResponseEntity<OrderDto> endOrder(@PathVariable Long orderId) {
+    final OrderDto order = orderService.endOrder(orderId);
+    return new ResponseEntity<>(order, HttpStatus.OK);
   }
 
   @DeleteMapping("/{orderId}")
