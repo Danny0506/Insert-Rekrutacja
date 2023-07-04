@@ -1,5 +1,6 @@
 package com.insert.recruitment.order;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 class ChangeStatusCommand {
-  private Boolean isChangeStatusOrder;
+  @NotNull private Boolean isChangeStatusOrder;
 }
