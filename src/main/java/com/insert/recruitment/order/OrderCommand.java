@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderCommand {
+class OrderCommand {
   private String nameOfOrder;
   private BigDecimal orderPrice;
   private String description;

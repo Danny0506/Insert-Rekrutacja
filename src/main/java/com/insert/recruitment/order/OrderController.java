@@ -20,14 +20,16 @@ class OrderController {
   }
 
   @PatchMapping("/{orderId}/acceptance")
-  public ResponseEntity<OrderDto> acceptOrder(@PathVariable Long orderId) {
-    final OrderDto order = orderService.acceptOrder(orderId);
+  public ResponseEntity<OrderDto> acceptOrder(
+      @PathVariable Long orderId, @RequestBody ChangeStatusCommand statusCommand) {
+    final OrderDto order = orderService.acceptOrder(orderId, statusCommand);
     return new ResponseEntity<>(order, HttpStatus.OK);
   }
 
   @PatchMapping("/{orderId}/termination")
-  public ResponseEntity<OrderDto> endOrder(@PathVariable Long orderId) {
-    final OrderDto order = orderService.endOrder(orderId);
+  public ResponseEntity<OrderDto> endOrder(
+      @PathVariable Long orderId, @RequestBody ChangeStatusCommand statusCommand) {
+    final OrderDto order = orderService.endOrder(orderId, statusCommand);
     return new ResponseEntity<>(order, HttpStatus.OK);
   }
 

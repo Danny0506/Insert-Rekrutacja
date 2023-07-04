@@ -38,24 +38,52 @@ public class OrderService {
     log.info(format("Order about id: %s was deleted from application", orderId));
   }
 
-  public OrderDto acceptOrder(Long orderId) {
+  public OrderDto acceptOrder(Long orderId, ChangeStatusCommand statusCommand) {
+    final boolean isChanged = statusCommand.getIsChangeStatusOrder();
     final OrderEntity order = resolveOrderEntityFromDatabase(orderId);
-    if (OrderStatus.APPROVED.equals(order.getStatus())) {
-      throw new CannotChangeOrderStatusException(order.getStatus().name());
-    } else {
+    if (isChangeStatusToApproved(order, isChanged)) {
       order.setStatus(OrderStatus.APPROVED);
+      log.info("Order status was changed to APPROVED.");
       return toDto(order);
+    } else if (isStatusWithoutChangesForAcceptOrder(order, isChanged)) {
+      log.info("Order status without changes.");
+      return toDto(order);
+    } else {
+      log.info(format("Order about id: %s had status APPROVED.", order.getId()));
+      throw new CannotChangeOrderStatusException(order.getStatus().name());
     }
   }
 
-  public OrderDto endOrder(Long orderId) {
+  private boolean isChangeStatusToApproved(OrderEntity order, boolean isChanged) {
+    return !OrderStatus.APPROVED.equals(order.getStatus()) && isChanged;
+  }
+
+  private boolean isStatusWithoutChangesForAcceptOrder(OrderEntity order, boolean isChanged) {
+    return !OrderStatus.APPROVED.equals(order.getStatus()) && !isChanged;
+  }
+
+  public OrderDto endOrder(Long orderId, ChangeStatusCommand statusCommand) {
+    final boolean isChanged = statusCommand.getIsChangeStatusOrder();
     final OrderEntity order = resolveOrderEntityFromDatabase(orderId);
-    if (OrderStatus.COMPLETED.equals(order.getStatus())) {
-      throw new CannotChangeOrderStatusException(order.getStatus().name());
-    } else {
+    if (isChangeStatusToCompleted(order, isChanged)) {
       order.setStatus(OrderStatus.COMPLETED);
+      log.info("Order status was changed to COMPLETED.");
       return toDto(order);
+    } else if (isStatusWithoutChanges(order, isChanged)) {
+      log.info("Order status without changes.");
+      return toDto(order);
+    } else {
+      log.info(format("Order about id: %s had status COMPLETED.", order.getId()));
+      throw new CannotChangeOrderStatusException(order.getStatus().name());
     }
+  }
+
+  private boolean isChangeStatusToCompleted(OrderEntity order, boolean isChanged) {
+    return !OrderStatus.COMPLETED.equals(order.getStatus()) && isChanged;
+  }
+
+  private boolean isStatusWithoutChanges(OrderEntity order, boolean isChanged) {
+    return !OrderStatus.COMPLETED.equals(order.getStatus()) && !isChanged;
   }
 
   public List<OrderDto> getOrders() {

@@ -13,8 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @ControllerAdvice
 @Order(HIGHEST_PRECEDENCE)
@@ -75,6 +78,45 @@ public class ControllerAdvisor {
             LocalDateTime.now(),
             SQL_INTEGRITY_CONSTRAINT_VALIDATION.name(),
             exception.getMessage());
+
+    return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+  public ResponseEntity<ErrorMessage> handleHttpRequestMethodNotSupportedException(
+      HttpRequestMethodNotSupportedException exception) {
+    log.info(format(LOG_CONSTANT, exception.getMessage()));
+    log.debug(format(LOG_CONSTANT, exception.getMessage()));
+
+    final ErrorMessage errorMessage =
+        new ErrorMessage(
+            SOURCE, LocalDateTime.now(), METHOD_NOT_ALLOW.name(), exception.getMessage());
+
+    return new ResponseEntity<>(errorMessage, HttpStatus.METHOD_NOT_ALLOWED);
+  }
+
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  public ResponseEntity<ErrorMessage> handleMethodArgumentTypeMismatchException(
+      MethodArgumentTypeMismatchException exception) {
+    log.info(format(LOG_CONSTANT, exception.getMessage()));
+    log.debug(format(LOG_CONSTANT, exception.getMessage()));
+
+    final ErrorMessage errorMessage =
+        new ErrorMessage(
+            SOURCE, LocalDateTime.now(), ARGUMENT_TYPE_MISMATCH.name(), exception.getMessage());
+
+    return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(MissingPathVariableException.class)
+  public ResponseEntity<ErrorMessage> handleMissingPathVariableException(
+      MissingPathVariableException exception) {
+    log.info(format(LOG_CONSTANT, exception.getMessage()));
+    log.debug(format(LOG_CONSTANT, exception.getMessage()));
+
+    final ErrorMessage errorMessage =
+        new ErrorMessage(
+            SOURCE, LocalDateTime.now(), MISSING_PATH_VARIABLE.name(), exception.getMessage());
 
     return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
   }

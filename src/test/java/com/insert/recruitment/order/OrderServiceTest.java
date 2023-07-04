@@ -69,11 +69,12 @@ class OrderServiceTest {
   void shouldCorrectEndOrder() {
     // given
     final Long orderId = 1L;
+    final ChangeStatusCommand statusCommand = changeStatus();
     final OrderEntity entity = createOrderEntity();
     when(orderRepository.findById(orderId)).thenReturn(Optional.of(entity));
 
     // when
-    final OrderDto result = orderService.endOrder(orderId);
+    final OrderDto result = orderService.endOrder(orderId, statusCommand);
 
     // then
     verify(orderRepository, times(1)).findById(orderId);
@@ -88,13 +89,37 @@ class OrderServiceTest {
   }
 
   @Test
+  void shouldNotChangedStatusToEndOrder() {
+    // given
+    final Long orderId = 1L;
+    final ChangeStatusCommand statusCommand = notChangeStatus();
+    final OrderEntity entity = createOrderEntity();
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(entity));
+
+    // when
+    final OrderDto result = orderService.endOrder(orderId, statusCommand);
+
+    // then
+    verify(orderRepository, times(1)).findById(orderId);
+
+    assertThat(result.nameOfOrder()).isEqualTo(NAME_OF_ORDER);
+    assertThat(result.sender()).isEqualTo(SENDER);
+    assertThat(result.receiver()).isEqualTo(RECEIVER);
+    assertThat(result.status()).isEqualTo(OrderStatus.CREATED);
+    assertThat(result.description()).isEqualTo(DESCRIPTION);
+    assertThat(result.orderPrice()).isEqualTo(ORDER_PRICE);
+    assertThat(result.dateOfOrder()).isEqualTo(DATE);
+  }
+
+  @Test
   void shouldThrowOrderNotExistExceptionWhenEndOrder() {
     // given
     final Long orderId = 2L;
+    final ChangeStatusCommand statusCommand = changeStatus();
     when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
     // when then
-    assertThrows(OrderNotExistException.class, () -> orderService.endOrder(orderId));
+    assertThrows(OrderNotExistException.class, () -> orderService.endOrder(orderId, statusCommand));
 
     verify(orderRepository, times(1)).findById(orderId);
   }
@@ -103,12 +128,15 @@ class OrderServiceTest {
   void shouldThrowCannotChangeOrderStatusExceptionWhenEndOrder() {
     // given
     final Long orderId = 2L;
+    final ChangeStatusCommand statusCommand = changeStatus();
     final OrderEntity entity = createOrderEntity();
     entity.setStatus(OrderStatus.COMPLETED);
     when(orderRepository.findById(orderId)).thenReturn(Optional.of(entity));
 
     // when then
-    assertThrows(CannotChangeOrderStatusException.class, () -> orderService.endOrder(orderId));
+    assertThrows(
+        CannotChangeOrderStatusException.class,
+        () -> orderService.endOrder(orderId, statusCommand));
 
     verify(orderRepository, times(1)).findById(orderId);
   }
@@ -117,11 +145,12 @@ class OrderServiceTest {
   void shouldCorrectAcceptOrder() {
     // given
     final Long orderId = 1L;
+    final ChangeStatusCommand statusCommand = changeStatus();
     final OrderEntity entity = createOrderEntity();
     when(orderRepository.findById(orderId)).thenReturn(Optional.of(entity));
 
     // when
-    final OrderDto result = orderService.acceptOrder(orderId);
+    final OrderDto result = orderService.acceptOrder(orderId, statusCommand);
 
     // then
     verify(orderRepository, times(1)).findById(orderId);
@@ -136,13 +165,38 @@ class OrderServiceTest {
   }
 
   @Test
+  void shouldNotChangedStatusToAcceptOrder() {
+    // given
+    final Long orderId = 1L;
+    final ChangeStatusCommand statusCommand = notChangeStatus();
+    final OrderEntity entity = createOrderEntity();
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(entity));
+
+    // when
+    final OrderDto result = orderService.acceptOrder(orderId, statusCommand);
+
+    // then
+    verify(orderRepository, times(1)).findById(orderId);
+
+    assertThat(result.nameOfOrder()).isEqualTo(NAME_OF_ORDER);
+    assertThat(result.sender()).isEqualTo(SENDER);
+    assertThat(result.receiver()).isEqualTo(RECEIVER);
+    assertThat(result.status()).isEqualTo(OrderStatus.CREATED);
+    assertThat(result.description()).isEqualTo(DESCRIPTION);
+    assertThat(result.orderPrice()).isEqualTo(ORDER_PRICE);
+    assertThat(result.dateOfOrder()).isEqualTo(DATE);
+  }
+
+  @Test
   void shouldThrowOrderNotExistExceptionWhenAcceptOrder() {
     // given
     final Long orderId = 2L;
+    final ChangeStatusCommand statusCommand = changeStatus();
     when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
     // when then
-    assertThrows(OrderNotExistException.class, () -> orderService.acceptOrder(orderId));
+    assertThrows(
+        OrderNotExistException.class, () -> orderService.acceptOrder(orderId, statusCommand));
 
     verify(orderRepository, times(1)).findById(orderId);
   }
@@ -151,12 +205,15 @@ class OrderServiceTest {
   void shouldThrowCannotChangeOrderStatusExceptionWhenAcceptOrder() {
     // given
     final Long orderId = 2L;
+    final ChangeStatusCommand statusCommand = changeStatus();
     final OrderEntity entity = createOrderEntity();
     entity.setStatus(OrderStatus.APPROVED);
     when(orderRepository.findById(orderId)).thenReturn(Optional.of(entity));
 
     // when then
-    assertThrows(CannotChangeOrderStatusException.class, () -> orderService.acceptOrder(orderId));
+    assertThrows(
+        CannotChangeOrderStatusException.class,
+        () -> orderService.acceptOrder(orderId, statusCommand));
 
     verify(orderRepository, times(1)).findById(orderId);
   }
