@@ -1,5 +1,7 @@
 package com.insert.recruitment.order;
 
+import static java.lang.String.format;
+
 import com.insert.recruitment.exception.CannotChangeOrderStatusException;
 import com.insert.recruitment.exception.OrderNotExistException;
 import java.time.LocalDate;
@@ -19,19 +21,21 @@ public class OrderService {
 
   public void createOrder(OrderCommand orderCommand) {
     final OrderEntity order = new OrderEntity();
-    order.setDescription(orderCommand.description());
+    order.setDescription(orderCommand.getDescription());
     order.setDateOfOrder(LocalDate.now());
-    order.setNameOfOrder(orderCommand.nameOfOrder());
+    order.setNameOfOrder(orderCommand.getNameOfOrder());
     order.setStatus(OrderStatus.CREATED);
-    order.setSender(orderCommand.sender());
-    order.setReceiver(orderCommand.receiver());
-    order.setOrderPrice(orderCommand.orderPrice());
+    order.setSender(orderCommand.getSender());
+    order.setReceiver(orderCommand.getReceiver());
+    order.setOrderPrice(orderCommand.getOrderPrice());
     orderRepository.save(order);
+    log.info(format("Order about id: %s was created in application", order.getId()));
   }
 
   public void cancelOrder(Long orderId) {
     final OrderEntity order = resolveOrderEntityFromDatabase(orderId);
     orderRepository.delete(order);
+    log.info(format("Order about id: %s was deleted from application", orderId));
   }
 
   public OrderDto acceptOrder(Long orderId) {
