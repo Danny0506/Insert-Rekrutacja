@@ -12,6 +12,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -131,6 +132,20 @@ class ControllerAdvisorTest {
     // when
     ResponseEntity<ErrorMessage> response =
         controllerAdvisor.handleMissingPathVariableException(exception);
+
+    // then
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(requireNonNull(response.getBody()).source()).isEqualTo(SOURCE);
+  }
+
+  @Test
+  void shouldHandleHttpMessageNotReadableException() {
+    // given
+    final HttpMessageNotReadableException exception = mock(HttpMessageNotReadableException.class);
+
+    // when
+    ResponseEntity<ErrorMessage> response =
+        controllerAdvisor.handleHttpMessageNotReadableException(exception);
 
     // then
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -117,6 +118,19 @@ public class ControllerAdvisor {
     final ErrorMessage errorMessage =
         new ErrorMessage(
             SOURCE, LocalDateTime.now(), MISSING_PATH_VARIABLE.name(), exception.getMessage());
+
+    return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<ErrorMessage> handleHttpMessageNotReadableException(
+      HttpMessageNotReadableException exception) {
+    log.info(format(LOG_CONSTANT, exception.getMessage()));
+    log.debug(format(LOG_CONSTANT, exception.getMessage()));
+
+    final ErrorMessage errorMessage =
+        new ErrorMessage(
+            SOURCE, LocalDateTime.now(), MESSAGE_NOT_READABLE.name(), "Required request body is missing.");
 
     return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
   }
