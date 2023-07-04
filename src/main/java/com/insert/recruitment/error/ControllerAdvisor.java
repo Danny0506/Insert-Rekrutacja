@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -130,7 +131,26 @@ public class ControllerAdvisor {
 
     final ErrorMessage errorMessage =
         new ErrorMessage(
-            SOURCE, LocalDateTime.now(), MESSAGE_NOT_READABLE.name(), "Required request body is missing.");
+            SOURCE,
+            LocalDateTime.now(),
+            MESSAGE_NOT_READABLE.name(),
+            "Required request body is missing.");
+
+    return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ErrorMessage> handleMethodArgumentNotValidException(
+      MethodArgumentNotValidException exception) {
+    log.info(format(LOG_CONSTANT, exception.getMessage()));
+    log.debug(format(LOG_CONSTANT, exception.getMessage()));
+
+    final ErrorMessage errorMessage =
+        new ErrorMessage(
+            SOURCE,
+            LocalDateTime.now(),
+            METHOD_ARGUMENT_NOT_VALID.name(),
+            "Method argument contain illegal value.");
 
     return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
   }

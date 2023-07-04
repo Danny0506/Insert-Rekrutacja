@@ -1,5 +1,6 @@
 package com.insert.recruitment.order;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,21 +15,21 @@ class OrderController {
   private final OrderService orderService;
 
   @PostMapping
-  public ResponseEntity<Void> createOrder(@RequestBody OrderCommand orderCommand) {
+  public ResponseEntity<Void> createOrder(@Valid @RequestBody OrderCommand orderCommand) {
     orderService.createOrder(orderCommand);
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
 
   @PatchMapping("/{orderId}/acceptance")
   public ResponseEntity<OrderDto> acceptOrder(
-      @PathVariable Long orderId, @RequestBody ChangeStatusCommand statusCommand) {
+      @PathVariable Long orderId, @Valid @RequestBody ChangeStatusCommand statusCommand) {
     final OrderDto order = orderService.acceptOrder(orderId, statusCommand);
     return new ResponseEntity<>(order, HttpStatus.OK);
   }
 
   @PatchMapping("/{orderId}/termination")
   public ResponseEntity<OrderDto> endOrder(
-      @PathVariable Long orderId, @RequestBody ChangeStatusCommand statusCommand) {
+      @PathVariable Long orderId, @Valid @RequestBody ChangeStatusCommand statusCommand) {
     final OrderDto order = orderService.endOrder(orderId, statusCommand);
     return new ResponseEntity<>(order, HttpStatus.OK);
   }
